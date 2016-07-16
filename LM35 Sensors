@@ -1,0 +1,136 @@
+#include <SPI.h> // Libraries for SD card
+#include <SD.h>
+
+const int chipSelect = 10;
+
+unsigned long time; // For elapsed time in log
+
+int green_LED = 2; // LED feedback pins, tell if data is recorded successfully
+int red_LED = 3;
+
+void setup() {
+  // put your setup code here, to run once:
+  Serial.begin(9600); //Begin serial communication on 9600
+  while (!Serial){
+    ; //Wait for serial to finish starting up
+  }
+  pinMode(green_LED, OUTPUT);
+  pinMode(red_LED, OUTPUT);
+  
+  Serial.println("Initializing SD card..."); // see if the card is present and can be initialized
+  
+  if (!SD.begin(chipSelect)) {
+    Serial.println("Card failed, or not present");
+    return; // don't do anything more
+  }
+  Serial.println("card initialized."); // continue with program
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+  
+  time = millis(); // Begins time at beginning of program start
+  float timeNow = time / 1000; // convers time to seconds
+  Serial.print("Time: ");
+  Serial.print(timeNow);
+  Serial.println(" sec"); // Prints time in serial
+  
+  int volt_0 = analogRead(A0);  // Temp node 1
+  float mv_0 = ((float)volt_0/1024.0)*5000;
+  float tempC_0 = mv_0/10;
+  float tempF_0 = (tempC_0 * 9)/5 + 32;
+  Serial.print("Temp 1: ");
+  Serial.print(tempF_0);
+  Serial.println(" *F");
+  
+  int volt_1 = analogRead(A1);  // Temp node 2
+  float mv_1 = ((float)volt_1/1024.0)*5000;
+  float tempC_1 = mv_1/10;
+  float tempF_1 = (tempC_1 * 9)/5 + 32;
+  Serial.print("Temp 2: ");
+  Serial.print(tempF_1);
+  Serial.println(" *F");
+  
+  int volt_2 = analogRead(A2);  // Temp node 3
+  float mv_2 = ((float)volt_2/1024.0)*5000;
+  float tempC_2 = mv_2/10;
+  float tempF_2 = (tempC_2 * 9)/5 + 32;
+  Serial.print("Temp 3: ");
+  Serial.print(tempF_2);
+  Serial.println(" *F");
+
+  int volt_3 = analogRead(A3);  // Temp node 4
+  float mv_3 = ((float)volt_3/1024.0)*5000;
+  float tempC_3 = mv_3/10;
+  float tempF_3 = (tempC_3 * 9)/5 + 32;
+  Serial.print("Temp 4: ");
+  Serial.print(tempF_3);
+  Serial.println(" *F");
+
+  int volt_4 = analogRead(A4);  // Temp node 5
+  float mv_4 = ((float)volt_4/1024.0)*5000;
+  float tempC_4 = mv_4/10;
+  float tempF_4 = (tempC_4 * 9)/5 + 32;
+  Serial.print("Temp 5: ");
+  Serial.print(tempF_4);
+  Serial.println(" *F");
+
+  int volt_5 = analogRead(A5);  // Temp node 6
+  float mv_5 = ((float)volt_2/1024.0)*5000;
+  float tempC_5 = mv_5/10;
+  float tempF_5 = (tempC_5 * 9)/5 + 32;
+  Serial.print("Temp 6: ");
+  Serial.print(tempF_5);
+  Serial.println(" *F");
+  
+  Serial.println("*----------*"); // Line separates each reading
+
+  // SD logging begins
+  File dataFile = SD.open("datalog.txt", FILE_WRITE); // Open data log for writing
+
+  if (dataFile) { // Attempt to open datalog.txt
+    dataFile.print("Time: ");
+    dataFile.print(timeNow);
+    dataFile.println(" sec");
+    
+    dataFile.print("Temp 1: ");
+    dataFile.print(tempF_0);
+    dataFile.println(" *F");
+    
+    dataFile.print("Temp 2: ");
+    dataFile.print(tempF_1);
+    dataFile.println(" *F");
+    
+    dataFile.print("Temp 3: ");
+    dataFile.print(tempF_2);
+    dataFile.println(" *F");
+
+    dataFile.print("Temp 4: ");
+    dataFile.print(tempF_2);
+    dataFile.println(" *F");
+
+    dataFile.print("Temp 5: ");
+    dataFile.print(tempF_2);
+    dataFile.println(" *F");
+
+    dataFile.print("Temp 6: ");
+    dataFile.print(tempF_2);
+    dataFile.println(" *F");
+
+    dataFile.println("*----------*");
+
+    dataFile.close();
+    digitalWrite(green_LED, HIGH); // turn green LED on to show successful data recording
+    Serial.println("Data succesfully logged...");
+    delay(500); //keep LED on for .5 sec
+    digitalWrite(green_LED, LOW); // turn LED off and wait for next cycle
+  }
+  else{ // If attempt to open datalog.txt fails, will print the below statement to serial
+    Serial.println("Data logging unsuccessful, error opening datalog.txt");
+    digitalWrite(red_LED, HIGH); //turn on red LED to show failed data logging
+    delay(500); // keep LED on for .5 sec
+    digitalWrite(red_LED, LOW); // turn LED off and wait for next cycle
+  }
+  
+  delay(4500);
+}
