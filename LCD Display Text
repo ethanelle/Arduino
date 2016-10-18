@@ -1,0 +1,26 @@
+#include <LiquidCrystal.h>
+
+LiquidCrystal lcd(12, 11, 5, 4, 3, 2); //set pins for LCD display
+
+void setup(){
+  lcd.begin(16,2); //Initialize LCD
+  Serial.begin(9600); //Initialize serial monitor
+}
+
+void loop(){
+  while(Serial.available() > 0){ //check for serial monitor input
+    lcd.write(Serial.read()); //print input from serial monitor on LCD display
+  }
+  delay(1500); //wait 1.5s to allow the first few words to be read
+  for(int positionCounter = 0; positionCounter < 16; positionCounter++){ //Scroll text to the left for 16 units
+    lcd.scrollDisplayLeft();
+    delay(250); //wait a quarter second between each unit change
+  }
+  for(int positionCounter = 0; positionCounter < 16; positionCounter++){ //scroll text back to original position towards right
+    lcd.scrollDisplayRight();
+    delay(250);
+  }
+  if(Serial.available() > 0){ //if there is a new input from the serial monitor...
+    lcd.clear(); //clear the LCD display for new text and repeat the loop
+  }
+}
